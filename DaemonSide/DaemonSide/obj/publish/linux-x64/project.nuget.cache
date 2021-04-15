@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "XUgwC+fNyUBgjs38lzJcVvoK+l0AOk7OObtI9MDYzvVXu71esvK8aWgA6J+1Mtuc1Tar7rqFtsfsAZ6761rq0w==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\jakub\\source\\repos\\DaemonSide\\DaemonSide\\DaemonSide.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\jakub\\.nuget\\packages\\microsoft.netcore.app.host.linux-x64\\3.1.13\\microsoft.netcore.app.host.linux-x64.3.1.13.nupkg.sha512"
+  ],
+  "logs": []
+}

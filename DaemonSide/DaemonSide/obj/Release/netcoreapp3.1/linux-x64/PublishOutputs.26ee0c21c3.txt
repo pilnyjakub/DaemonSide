@@ -1,0 +1,5 @@
+C:\Users\jakub\source\repos\DaemonSide\DaemonSide\bin\Release\netcoreapp3.1\publish\DaemonSide
+C:\Users\jakub\source\repos\DaemonSide\DaemonSide\bin\Release\netcoreapp3.1\publish\DaemonSide.dll
+C:\Users\jakub\source\repos\DaemonSide\DaemonSide\bin\Release\netcoreapp3.1\publish\DaemonSide.deps.json
+C:\Users\jakub\source\repos\DaemonSide\DaemonSide\bin\Release\netcoreapp3.1\publish\DaemonSide.runtimeconfig.json
+C:\Users\jakub\source\repos\DaemonSide\DaemonSide\bin\Release\netcoreapp3.1\publish\DaemonSide.pdb
