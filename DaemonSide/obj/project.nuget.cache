@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "f6eXvGq7cwNwbU0tBwaXmdM5Lk/YmLnhuQzMX6O4eKveVcBMJi3Pj7LxMDFJSfrbaiyIaZDMZ/g1M9D2MgDw4A==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\jakub\\sssvt-sad\\DaemonSide\\DaemonSide\\DaemonSide.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\jakub\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
