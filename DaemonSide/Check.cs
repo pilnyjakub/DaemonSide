@@ -12,6 +12,17 @@ namespace DaemonSide
         Http http = new Http();
         BackupSettings backupSettings = new BackupSettings();
 
+        public bool Login()
+        {
+            Console.Write("Username: ");
+            User.Instance.Username = Console.ReadLine();
+            Console.Write("Password: ");
+            User.Instance.Password = Console.ReadLine();
+            string api = "/api/sessions/";
+            string result = http.PostAsync(api, User.Instance).Result;
+            if(!result.Contains("invalid")) { return true; }
+            return false;
+        }
         public void Id()
         {
             string idPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\id.sad";
@@ -39,6 +50,7 @@ namespace DaemonSide
             string api = "/api/pc/";
             string result = http.GetAsyncID(api, Pc.Instance.Id).Result;
             Pc.Instance = JsonConvert.DeserializeObject<Pc>(result);
+            if (String.IsNullOrEmpty(result)) { string idPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\id.sad"; File.Delete(idPath); Pc.Instance.Id = new int(); Id(); }
             if (Pc.Instance.State == "blocked") { return; }
             Pc.Instance.IpAddress = pcSettings.GetIpAddress().Result;
             Pc.Instance.MacAddress = pcSettings.GetMacAddress();

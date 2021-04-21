@@ -59,4 +59,12 @@
         private Pc() { }
         public static Pc Instance = new Pc();
     }
+    public class User
+    {
+        public int Id { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        private User() { }
+        public static User Instance = new User();
+    }
 }

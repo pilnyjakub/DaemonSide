@@ -57,11 +57,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\jakub\\sssvt-sad\\DaemonSide\\DaemonSide\\DaemonSide.csproj",
+      "projectUniqueName": "C:\\Users\\jakub\\DaemonSide\\DaemonSide\\DaemonSide.csproj",
       "projectName": "DaemonSide",
-      "projectPath": "C:\\Users\\jakub\\sssvt-sad\\DaemonSide\\DaemonSide\\DaemonSide.csproj",
+      "projectPath": "C:\\Users\\jakub\\DaemonSide\\DaemonSide\\DaemonSide.csproj",
       "packagesPath": "C:\\Users\\jakub\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\jakub\\sssvt-sad\\DaemonSide\\DaemonSide\\obj\\",
+      "outputPath": "C:\\Users\\jakub\\DaemonSide\\DaemonSide\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\jakub\\AppData\\Roaming\\NuGet\\NuGet.Config",

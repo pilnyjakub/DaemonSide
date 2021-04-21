@@ -10,6 +10,12 @@ namespace DaemonSide
         {
             Check ch = new Check();
             //prihlaseni
+            while (true)
+            {
+                Console.WriteLine("Please log in.\n");
+                if(ch.Login()) { break; }
+                Console.Clear();
+            }
 
             //nastavení id
             ch.Id();
