@@ -37,6 +37,7 @@ namespace DaemonSide
             else
             {
                 string api = "/api/pc/";
+                Pc.Instance.State = "offline";
                 string result = http.PostAsync(api, Pc.Instance).Result;
                 Pc.Instance = JsonConvert.DeserializeObject<Pc>(result);
                 using (StreamWriter writer = File.CreateText(idPath))
