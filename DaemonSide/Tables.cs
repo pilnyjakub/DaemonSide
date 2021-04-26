@@ -67,4 +67,10 @@
         private User() { }
         public static User Instance = new User();
     }
+    public class Token
+    {
+        public string result { get; set; }
+        private Token() { }
+        public static Token Instance = new Token();
+    }
 }

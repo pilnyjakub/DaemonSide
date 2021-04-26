@@ -13,7 +13,7 @@ namespace DaemonSide
             while (true)
             {
                 Console.WriteLine("Please log in.\n");
-                if(ch.Login()) { break; }
+                if (ch.Login()) { break; }
                 Console.Clear();
             }
 
