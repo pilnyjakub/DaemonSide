@@ -78,13 +78,13 @@ namespace DaemonSide
                             List<Backup> backups = backupSettings.GetBackupById(pcBackupId.Id);
                             string backupDirectoryName = String.Format("/{0:dd-MM-yyyy}_{1:HH-mm}_{2}_{3}/", DateTime.Now.Date, DateTime.Now, backupConfig.Type, pcBackupId.Id);
                             string storagePath = String.Format(storage.Path + backupDirectoryName);
-                            string log = ""; int fileCount = 0; int fileCountFailed = 0; int fileCountSuccess = 0; string spliter; operations = new List<string>(); firstoperations = new List<string>();
+                            operations = new List<string>(); firstoperations = new List<string>();
                             string backupOperations = ListOperations(backupConfig, backups);
-                            spliter = MakeBackup(storagePath, storage, backupConfig, pcBackup, backupOperations);
-                            log = spliter.Split('|')[0];
-                            fileCount = int.Parse(spliter.Split('|')[1]);
-                            fileCountFailed = int.Parse(spliter.Split('|')[2]);
-                            fileCountSuccess = int.Parse(spliter.Split('|')[3]);
+                            string spliter = MakeBackup(storagePath, storage, backupConfig, pcBackup, backupOperations);
+                            string log = spliter.Split('|')[0];
+                            int fileCount = int.Parse(spliter.Split('|')[1]);
+                            int fileCountFailed = int.Parse(spliter.Split('|')[2]);
+                            int fileCountSuccess = int.Parse(spliter.Split('|')[3]);
                             backupOperations = spliter.Split('|')[4];
                             backupSettings.BackupDone(log, pcBackupId, fileCount, fileCountFailed, fileCountSuccess, backupOperations);
                         }
@@ -181,8 +181,9 @@ namespace DaemonSide
                         try
                         {
                             FileInfo fi = new FileInfo(backupFiles.Path);
-                            if (storage.Place == "Local") { File.Copy(fi.FullName, storagePath + fi.Name, true); fileCountSuccess++; }
+                            if (storage.Place == "Local") { File.Copy(fi.FullName, storagePath + fi.Name, true); }
                             else if (storage.Place == "FTP") { client.UploadFile(fi.FullName, storage.Path + storagePath + fi.Name, FtpRemoteExists.Overwrite); }
+                            fileCountSuccess++;
                             if (backupConfig.Type == "IB" || backupConfig.Type == "DB") { backupOperations += backupFiles.Path + "\n"; }
                         }
                         catch (Exception e) { log += String.Format("\n{0} (\"{1}\")", e.ToString(), backupFiles.Path); fileCountFailed++; }
