@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using Ionic.Zip;
+using System.Linq;
 
 namespace DaemonSide
 {
@@ -29,7 +31,7 @@ namespace DaemonSide
         }
         public void Id()
         {
-            string idPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\id.sad";
+            string idPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/id.sad";
             Pc.Instance.Name = pcSettings.GetName();
             Pc.Instance.IpAddress = pcSettings.GetIpAddress().Result;
             Pc.Instance.MacAddress = pcSettings.GetMacAddress();
@@ -55,7 +57,7 @@ namespace DaemonSide
             string api = "/api/pc/";
             string result = http.GetAsyncID(api, Pc.Instance.Id).Result;
             Pc.Instance = JsonConvert.DeserializeObject<Pc>(result);
-            if (String.IsNullOrEmpty(result)) { string idPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\id.sad"; File.Delete(idPath); Pc.Instance.Id = new int(); Id(); }
+            if (String.IsNullOrEmpty(result)) { string idPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/id.sad"; File.Delete(idPath); Pc.Instance.Id = new int(); Id(); }
             if (Pc.Instance.State == "blocked") { return; }
             Pc.Instance.IpAddress = pcSettings.GetIpAddress().Result;
             Pc.Instance.MacAddress = pcSettings.GetMacAddress();
@@ -77,6 +79,7 @@ namespace DaemonSide
                             PcBackup pcBackupId = backupSettings.GetPcBackudId(Pc.Instance.Id, pcBackup.IdConfig);
                             List<Backup> backups = backupSettings.GetBackupById(pcBackupId.Id);
                             string backupDirectoryName = String.Format("/{0:dd-MM-yyyy}_{1:HH-mm}_{2}_{3}/", DateTime.Now.Date, DateTime.Now, backupConfig.Type, pcBackupId.Id);
+                            if(storage.Format == "ZIP") { backupDirectoryName = backupDirectoryName.Remove(backupDirectoryName.Length - 1) + ".zip"; }
                             string storagePath = String.Format(storage.Path + backupDirectoryName);
                             operations = new List<string>(); firstoperations = new List<string>();
                             string backupOperations = ListOperations(backupConfig, backups);
@@ -135,6 +138,7 @@ namespace DaemonSide
         public string MakeBackup(string storagePath, Storage storage, BackupConfig backupConfig, PcBackup pcBackup, string backupOperations)
         {
             string log = ""; int fileCount = 0; int fileCountFailed = 0; int fileCountSuccess = 0;
+            ZipFile zip = new ZipFile();
             FtpClient client = new FtpClient(storage.ServerIP);
             client.Credentials = new NetworkCredential(storage.ServerLogin, storage.ServerPass);
             if (storage.Place == "Local" && !Directory.Exists(storage.Path))
@@ -144,7 +148,7 @@ namespace DaemonSide
             }
             else if (storage.Place == "FTP")
             {
-                try { client.Connect(); client.CreateDirectory(storage.Path + storagePath); }
+                try { client.Connect(); client.CreateDirectory(storage.Path + storagePath.Replace(".zip","")); }
                 catch (Exception e) { log += String.Format("\nCan't connect to FTP server. (\"{0}\")", storage.ServerIP); return String.Format("{0}|{1}|{2}|{3}", log, fileCount, fileCountFailed, fileCountSuccess); }
             }
             foreach (var backupFiles in backupSettings.GetPaths(pcBackup.IdConfig))
@@ -152,11 +156,19 @@ namespace DaemonSide
                 if (Directory.Exists(backupFiles.Path))
                 {
                     DirectoryInfo di = new DirectoryInfo(backupFiles.Path);
-                    if (storage.Place == "Local") { Directory.CreateDirectory(storagePath + di.Name + '/'); }
-                    else if (storage.Place == "FTP") { client.CreateDirectory(storage.Path + storagePath + di.Name + '/'); }
+                    if (storage.Format == "ZIP") { zip.AddDirectoryByName(di.Name); }
+                    else
+                    {
+                        if (storage.Place == "Local") { Directory.CreateDirectory(storagePath + di.Name + '/'); }
+                        else if (storage.Place == "FTP") { client.CreateDirectory(storage.Path + storagePath + di.Name + '/'); }
+                    }
                     foreach (var dirPath in Directory.GetDirectories(di.FullName, "*", SearchOption.AllDirectories))
-                        if (storage.Place == "Local") { Directory.CreateDirectory(dirPath.Replace(di.FullName, storagePath + di.Name + '/')); }
-                        else if (storage.Place == "FTP") { client.CreateDirectory(dirPath.Replace(di.FullName, storage.Path + storagePath + di.Name + '/')); }
+                        if (storage.Format == "ZIP") { zip.AddDirectoryByName(di.Name + dirPath.Split(di.Name)[1]); }
+                        else
+                        {
+                            if (storage.Place == "Local") { Directory.CreateDirectory(dirPath.Replace(di.FullName, storagePath + di.Name + '/')); }
+                            else if (storage.Place == "FTP") { client.CreateDirectory(dirPath.Replace(di.FullName, storage.Path + storagePath + di.Name + '/')); }
+                        }
                     foreach (var newPath in Directory.GetFiles(di.FullName, "*.*", SearchOption.AllDirectories))
                     {
                         fileCount++;
@@ -164,8 +176,12 @@ namespace DaemonSide
                         {
                             try
                             {
-                                if (storage.Place == "Local") { File.Copy(newPath, newPath.Replace(di.FullName, storagePath + di.Name + '/'), true); }
-                                else if (storage.Place == "FTP") { client.UploadFile(newPath, newPath.Replace(di.FullName, storage.Path + storagePath + di.Name + '/'), FtpRemoteExists.Overwrite); }
+                                if (storage.Format == "ZIP") { zip.AddFile(newPath, di.Name + newPath.Split(di.Name)[1]); }
+                                else
+                                {
+                                    if (storage.Place == "Local") { File.Copy(newPath, newPath.Replace(di.FullName, storagePath + di.Name + '/'), true); }
+                                    else if (storage.Place == "FTP") { client.UploadFile(newPath, newPath.Replace(di.FullName, storage.Path + storagePath + di.Name + '/'), FtpRemoteExists.Overwrite); }
+                                }
                                 fileCountSuccess++;
                                 if (backupConfig.Type == "IB" || backupConfig.Type == "DB") { backupOperations += newPath + "\n"; }
                             }
@@ -181,8 +197,12 @@ namespace DaemonSide
                         try
                         {
                             FileInfo fi = new FileInfo(backupFiles.Path);
-                            if (storage.Place == "Local") { File.Copy(fi.FullName, storagePath + fi.Name, true); }
-                            else if (storage.Place == "FTP") { client.UploadFile(fi.FullName, storage.Path + storagePath + fi.Name, FtpRemoteExists.Overwrite); }
+                            if (storage.Format == "ZIP") { zip.AddFile(fi.FullName, ""); }
+                            else
+                            {
+                                if (storage.Place == "Local") { File.Copy(fi.FullName, storagePath + fi.Name, true); }
+                                else if (storage.Place == "FTP") { client.UploadFile(fi.FullName, storage.Path + storagePath + fi.Name, FtpRemoteExists.Overwrite); }
+                            }
                             fileCountSuccess++;
                             if (backupConfig.Type == "IB" || backupConfig.Type == "DB") { backupOperations += backupFiles.Path + "\n"; }
                         }
@@ -190,6 +210,17 @@ namespace DaemonSide
                     }
                 }
                 else { log += String.Format("\nDirectory or file does not exists or has been deleted. (\"{0}\")", backupFiles.Path); fileCount++; fileCountFailed++; }
+            }
+            if (storage.Format == "ZIP")
+            {
+                if (storage.Place == "Local") { zip.Save(storagePath); }
+                else if (storage.Place == "FTP")
+                {
+                    string zipFile = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + storagePath.Split(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).Last().Replace("/","\\");
+                    zip.Save(zipFile);
+                    client.UploadFile(zipFile, zipFile.Split(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).Last().Replace(".zip", "") + zipFile.Split(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).Last());
+                    File.Delete(zipFile);
+                }
             }
             if (storage.Place == "FTP") { client.Disconnect(); }
             string combiner = String.Format("{0}|{1}|{2}|{3}|{4}", log, fileCount, fileCountFailed, fileCountSuccess, backupOperations);

@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentFTP" Version="33.1.7" />
+    <PackageReference Include="DotNetZip" Version="1.15.0" />
+    <PackageReference Include="FluentFTP" Version="33.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
