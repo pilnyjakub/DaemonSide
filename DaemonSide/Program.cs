@@ -26,7 +26,7 @@ namespace DaemonSide
             {
                 Console.Clear();
                 ch.UpdatePc();
-                if (Pc.Instance.State == "blocked") { break; }
+                if (Pc.Instance.Blocked >= 1) { break; }
                 Console.WriteLine("ID: " + Pc.Instance.Id);
                 Console.WriteLine("OS/Name: " + Pc.Instance.OS + '/' + Pc.Instance.Name);
                 Console.WriteLine("IP Address: " + Pc.Instance.IpAddress);

@@ -43,7 +43,7 @@ namespace DaemonSide
             else
             {
                 string api = "/api/pc/";
-                Pc.Instance.State = "offline";
+                Pc.Instance.LastOnline = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 string result = http.PostAsync(api, Pc.Instance).Result;
                 Pc.Instance = JsonConvert.DeserializeObject<Pc>(result);
                 using (StreamWriter writer = File.CreateText(idPath))
@@ -58,7 +58,7 @@ namespace DaemonSide
             string result = http.GetAsyncID(api, Pc.Instance.Id).Result;
             Pc.Instance = JsonConvert.DeserializeObject<Pc>(result);
             if (String.IsNullOrEmpty(result)) { string idPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/id.sad"; File.Delete(idPath); Pc.Instance.Id = new int(); Id(); }
-            if (Pc.Instance.State == "blocked") { return; }
+            if (Pc.Instance.Blocked >= 1) { return; }
             Pc.Instance.IpAddress = pcSettings.GetIpAddress().Result;
             Pc.Instance.MacAddress = pcSettings.GetMacAddress();
             Pc.Instance.OS = pcSettings.GetOs();
