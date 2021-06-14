@@ -62,6 +62,7 @@ namespace DaemonSide
             Pc.Instance.IpAddress = pcSettings.GetIpAddress().Result;
             Pc.Instance.MacAddress = pcSettings.GetMacAddress();
             Pc.Instance.OS = pcSettings.GetOs();
+            Pc.Instance.LastOnline = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             string result2 = http.PutAsync(api, Pc.Instance.Id, Pc.Instance).Result;
         }
         public void DoBackup()
@@ -139,17 +140,18 @@ namespace DaemonSide
         {
             string log = ""; int fileCount = 0; int fileCountFailed = 0; int fileCountSuccess = 0;
             ZipFile zip = new ZipFile();
-            FtpClient client = new FtpClient(storage.ServerIP);
-            client.Credentials = new NetworkCredential(storage.ServerLogin, storage.ServerPass);
+            FtpClient client = null;
             if (storage.Place == "Local" && !Directory.Exists(storage.Path))
             {
                 Directory.CreateDirectory(storagePath); log += String.Format("\nLocal storage path does not exist. (\"{0}\")", storage.Path);
-                return String.Format("{0}|{1}|{2}|{3}", log, fileCount, fileCountFailed, fileCountSuccess);
+                return String.Format("{0}|{1}|{2}|{3}|{4}", log, fileCount, fileCountFailed, fileCountSuccess, backupOperations);
             }
             else if (storage.Place == "FTP")
             {
+                client = new FtpClient(storage.ServerIP);
+                client.Credentials = new NetworkCredential(storage.ServerLogin, storage.ServerPass);
                 try { client.Connect(); client.CreateDirectory(storage.Path + storagePath.Replace(".zip","")); }
-                catch (Exception e) { log += String.Format("\nCan't connect to FTP server. (\"{0}\")", storage.ServerIP); return String.Format("{0}|{1}|{2}|{3}", log, fileCount, fileCountFailed, fileCountSuccess); }
+                catch (Exception e) { log += String.Format("\nCan't connect to FTP server. (\"{0}\")", storage.ServerIP); return String.Format("{0}|{1}|{2}|{3}|{4}", log, fileCount, fileCountFailed, fileCountSuccess, backupOperations); }
             }
             foreach (var backupFiles in backupSettings.GetPaths(pcBackup.IdConfig))
             {
