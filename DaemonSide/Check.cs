@@ -164,14 +164,14 @@ namespace DaemonSide
                         if (storage.Place == "Local") { Directory.CreateDirectory(storagePath + di.Name + '/'); }
                         else if (storage.Place == "FTP") { client.CreateDirectory(storage.Path + storagePath + di.Name + '/'); }
                     }
-                    foreach (var dirPath in Directory.GetDirectories(di.FullName, "*", SearchOption.AllDirectories))
+                    foreach (var dirPath in Directory.EnumerateDirectories(di.FullName, "*", new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = true }))
                         if (storage.Format == "ZIP") { zip.AddDirectoryByName(di.Name + dirPath.Split(di.Name)[1]); }
                         else
                         {
                             if (storage.Place == "Local") { Directory.CreateDirectory(dirPath.Replace(di.FullName, storagePath + di.Name + '/')); }
                             else if (storage.Place == "FTP") { client.CreateDirectory(dirPath.Replace(di.FullName, storage.Path + storagePath + di.Name + '/')); }
                         }
-                    foreach (var newPath in Directory.GetFiles(di.FullName, "*.*", SearchOption.AllDirectories))
+                    foreach (var newPath in Directory.EnumerateFiles(di.FullName, "*.*", new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = true }))
                     {
                         fileCount++;
                         if ((backupConfig.Type == "IB" && !operations.Contains(newPath)) || (backupConfig.Type == "DB" && !firstoperations.Contains(newPath)) || backupConfig.Type == "FB")

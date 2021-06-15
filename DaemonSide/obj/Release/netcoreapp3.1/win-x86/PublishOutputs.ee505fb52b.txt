@@ -1,0 +1,2 @@
+C:\Users\jakub\DaemonSide\DaemonSide\bin\Release\netcoreapp3.1\publish\DaemonSide.pdb
+C:\Users\jakub\DaemonSide\DaemonSide\bin\Release\netcoreapp3.1\publish\DaemonSide.exe
