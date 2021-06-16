@@ -143,8 +143,8 @@ namespace DaemonSide
             FtpClient client = null;
             if (storage.Place == "Local" && !Directory.Exists(storage.Path))
             {
-                Directory.CreateDirectory(storagePath); log += String.Format("\nLocal storage path does not exist. (\"{0}\")", storage.Path);
-                return String.Format("{0}|{1}|{2}|{3}|{4}", log, fileCount, fileCountFailed, fileCountSuccess, backupOperations);
+                try { Directory.CreateDirectory(storagePath); }
+                catch (Exception e) { log += String.Format("\nLocal storage path does not exist. (\"{0}\")", storage.Path); return String.Format("{0}|{1}|{2}|{3}|{4}", log, fileCount, fileCountFailed, fileCountSuccess, backupOperations); }
             }
             else if (storage.Place == "FTP")
             {
